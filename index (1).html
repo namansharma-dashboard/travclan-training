@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconfirmation Training — TravClan</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F3F4F6;padding:16px}
+.wrap{max-width:860px;margin:0 auto;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+.topbar{background:#1A4F8A;padding:20px 24px}
+.topbar h1{color:#fff;font-size:20px;font-weight:600}
+.topbar p{color:#B5D4F4;font-size:13px;margin-top:4px}
+.progress-row{display:flex;gap:8px;padding:14px 24px;background:#F8FAFF;border-bottom:1px solid #E5E7EB;flex-wrap:wrap;align-items:center}
+.prog-label{font-size:13px;color:#6B7280;margin-right:4px}
+.prog-bar-wrap{flex:1;min-width:120px;height:6px;background:#E5E7EB;border-radius:4px;overflow:hidden}
+.prog-bar{height:100%;background:#1A4F8A;border-radius:4px;transition:width .4s}
+.prog-pct{font-size:13px;font-weight:600;color:#1A4F8A;min-width:36px}
+.nav{display:flex;border-bottom:1px solid #E5E7EB;background:#fff;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.nav::-webkit-scrollbar{height:0}
+.nav-btn{padding:12px 16px;font-size:13px;font-weight:500;color:#6B7280;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;flex-shrink:0}
+.nav-btn.active{color:#1A4F8A;border-bottom:3px solid #1A4F8A}
+.nav-btn .dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block;margin-left:5px;vertical-align:middle}
+.nav-btn .dot.no{background:#D1D5DB}
+.content{padding:24px;background:#fff;min-height:400px}
+.section{display:none}
+.section.active{display:block}
+.sec-title{font-size:18px;font-weight:600;color:#111827;margin-bottom:20px}
+.card{background:#F8FAFF;border:1px solid #E5E7EB;border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.card h3{font-size:15px;font-weight:600;color:#111827;margin-bottom:8px}
+.card p{font-size:14px;color:#374151;line-height:1.7}
+.highlight{background:#EFF6FF;border-left:3px solid #1A4F8A;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px;color:#1E3A5F;line-height:1.7;font-style:italic}
+.step-row{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
+.step-num{width:30px;height:30px;min-width:30px;border-radius:50%;background:#1A4F8A;color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.step-body h4{font-size:14px;font-weight:600;color:#111827;margin-bottom:6px}
+.step-body p{font-size:13px;color:#374151;line-height:1.6}
+.checklist{list-style:none;margin:12px 0}
+.checklist li{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#374151;padding:8px 0;border-bottom:1px solid #F3F4F6;line-height:1.5}
+.checklist li:last-child{border-bottom:none}
+.check-icon{width:18px;height:18px;min-width:18px;border-radius:4px;background:#1D9E75;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.sla-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+@media(max-width:500px){.sla-grid{grid-template-columns:1fr}}
+.sla-card{border-radius:10px;padding:16px;text-align:center;border:1px solid #E5E7EB}
+.sla-card .p-num{font-size:28px;font-weight:700;margin-bottom:4px}
+.sla-card .p-tier{font-size:13px;font-weight:600;margin-bottom:8px}
+.sla-card .p-crit{font-size:12px;color:#6B7280;margin-bottom:10px;line-height:1.4}
+.sla-card .p-sla{font-size:16px;font-weight:700}
+.p1c{background:#FFF5F5}.p1c .p-num,.p1c .p-sla{color:#B91C1C}
+.p2c{background:#FFFBEB}.p2c .p-num,.p2c .p-sla{color:#B45309}
+.p3c{background:#F0FDF4}.p3c .p-num,.p3c .p-sla{color:#166534}
+.tz-row{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #F3F4F6;flex-wrap:wrap}
+.tz-row:last-child{border-bottom:none}
+.tz-region{font-size:14px;font-weight:500;color:#111827;min-width:200px;flex:1}
+.tz-window{font-size:13px;color:#374151;min-width:130px}
+.tz-badge{font-size:11px;padding:2px 10px;border-radius:10px;background:#EFF6FF;color:#1E40AF;white-space:nowrap}
+.status-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.status-tbl th{background:#1A4F8A;color:#E8F0FB;padding:10px 14px;text-align:left;font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+.status-tbl td{padding:11px 14px;border-bottom:1px solid #E5E7EB;vertical-align:top;color:#111827;line-height:1.5}
+.status-tbl tr:nth-child(odd) td{background:#FAFAFA}
+.status-tbl tr:nth-child(even) td{background:#fff}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600}
+.b-ok{background:#D1FAE5;color:#065F46}
+.b-note{background:#DBEAFE;color:#1E40AF}
+.b-retry{background:#EDE9FE;color:#5B21B6}
+.b-warn{background:#FEF3C7;color:#92400E}
+.b-esc{background:#FEE2E2;color:#991B1B}
+.recordings-box{border:2px dashed #CBD5E1;border-radius:10px;padding:32px 24px;text-align:center;margin-bottom:16px}
+.recordings-box p{font-size:14px;color:#6B7280;margin-bottom:16px;line-height:1.6}
+.upload-btn{display:inline-block;padding:10px 22px;background:#1A4F8A;color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none}
+.rec-item{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#F8FAFF;border:1px solid #E5E7EB;border-radius:8px;margin-bottom:8px}
+.rec-label{font-size:14px;font-weight:600;color:#111827}
+.rec-sub{font-size:12px;color:#6B7280;margin-top:2px}
+.play-btn{width:34px;height:34px;min-width:34px;border-radius:50%;background:#1A4F8A;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.quiz-q{margin-bottom:24px}
+.quiz-q p{font-size:15px;font-weight:600;color:#111827;margin-bottom:12px;line-height:1.5}
+.quiz-opt{display:block;padding:12px 16px;margin-bottom:8px;border:1px solid #E5E7EB;border-radius:8px;font-size:14px;color:#374151;cursor:pointer;background:#fff;text-align:left;width:100%;transition:all .15s}
+.quiz-opt:hover{background:#F0F7FF;border-color:#1A4F8A}
+.quiz-opt.correct{background:#D1FAE5;border-color:#059669;color:#065F46;font-weight:600}
+.quiz-opt.wrong{background:#FEE2E2;border-color:#DC2626;color:#991B1B}
+.quiz-opt.reveal{background:#D1FAE5;border-color:#059669;color:#065F46;font-weight:600}
+.quiz-result{display:none;text-align:center;padding:28px;border-radius:10px;margin-top:16px}
+.quiz-result.show{display:block}
+.mark-read-btn{margin-top:20px;padding:10px 22px;background:#1A4F8A;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.mark-read-btn.done{background:#D1FAE5;color:#065F46;cursor:default}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1>Reconfirmation Training — TravClan</h1>
+    <p>Read each section and complete the quiz to finish your training</p>
+  </div>
+  <div class="progress-row">
+    <span class="prog-label">Progress</span>
+    <div class="prog-bar-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+    <span class="prog-pct" id="progPct">0%</span>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="showSection(0)">Why we reconfirm <span class="dot no" id="dot0"></span></button>
+    <button class="nav-btn" onclick="showSection(1)">SLA & Priority <span class="dot no" id="dot1"></span></button>
+    <button class="nav-btn" onclick="showSection(2)">Call script <span class="dot no" id="dot2"></span></button>
+    <button class="nav-btn" onclick="showSection(3)">Status categories <span class="dot no" id="dot3"></span></button>
+    <button class="nav-btn" onclick="showSection(4)">Timezone guide <span class="dot no" id="dot4"></span></button>
+    <button class="nav-btn" onclick="showSection(5)">Call recordings <span class="dot no" id="dot5"></span></button>
+    <button class="nav-btn" onclick="showSection(6)">Quiz <span class="dot no" id="dot6"></span></button>
+  </div>
+
+  <div class="content">
+
+    <div class="section active" id="sec0">
+      <div class="sec-title">Why we reconfirm</div>
+      <div class="card"><p>When a guest books a hotel through TravClan, the booking goes through multiple systems — our portal, the agent, and the hotel's own reservation system. By the time it lands on the hotel's end, things can go wrong. Room types get mismatched. Meal plans don't show up. Some bookings don't even make it into the hotel's system at all.</p></div>
+      <div class="card"><p>The guest doesn't know any of this. They show up at the hotel expecting a smooth check-in.</p></div>
+      <div class="highlight">"Reconfirmation is how we make sure that never happens on our watch. We call the hotel before the guest travels, verify every detail, and fix any issues while we still have time."</div>
+      <div class="card"><h3>Why timing matters</h3><p>Once the guest is standing at the front desk with a suitcase, it's too late — the cost to fix it goes up, the guest experience goes down, and TravClan takes the blame. This is not a back-office task. It is the last checkpoint between a booking on a screen and a guest having a good experience.</p></div>
+      <button class="mark-read-btn" id="mrk0" onclick="markRead(0)">Mark as read</button>
+    </div>
+
+    <div class="section" id="sec1">
+      <div class="sec-title">SLA & Priority</div>
+      <div class="sla-grid">
+        <div class="sla-card p1c"><div class="p-num">P1</div><div class="p-tier">Today check-in</div><div class="p-crit">Check-in today — all agents, no exceptions</div><div class="p-sla">0 – 4 hrs</div></div>
+        <div class="sla-card p2c"><div class="p-num">P2</div><div class="p-tier">2 – 10 days</div><div class="p-crit">Check-in within 2–10 days — all agents</div><div class="p-sla">0 – 24 hrs</div></div>
+        <div class="sla-card p3c"><div class="p-num">P3</div><div class="p-tier">10+ days</div><div class="p-crit">Check-in 10+ days away — all agents</div><div class="p-sla">0 – 48 hrs</div></div>
+      </div>
+      <div class="card">
+        <h3>How to build your queue each morning</h3>
+        <ul class="checklist">
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Sort by check-in date first — P1 always at the top, no exceptions</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Within the same tier, Volt/Nikola agent bookings go before others</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Within same tier + same agent, earlier bookings first</li>
+          <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Check email replies and AI bot log before you start calling — confirmed bookings are removed from your queue</li>
+        </ul>
+      </div>
+      <button class="mark-read-btn" id="mrk1" onclick="markRead(1)">Mark as read</button>
+    </div>
+
+    <div class="section" id="sec2">
+      <div class="sec-title">Call script & steps</div>
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Opening — get the right person</h4>
+          <p>"Hello, good [morning/afternoon/evening]! Am I speaking with the Reservations or Front Desk team at [Hotel Name]?"</p>
+          <p style="margin-top:8px">Always ask for Reservations first. Once connected, introduce yourself:</p>
+          <div class="highlight">"Thank you. My name is [Your Name], calling from TravClan. I'd like to reconfirm a booking at your property. The guest name is [Guest Name]. Check-in date is [Date]. Check-out date is [Date]. Could you please confirm if this reservation is active in your system?"</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Verification checklist — go through every point</h4>
+          <ul class="checklist">
+            <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Check-in and check-out dates — confirm both match exactly</li>
+            <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Number of rooms</li>
+            <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Room type + inclusions (sea view, pool access, club access etc.)</li>
+            <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Number of guests (pax) per room and total</li>
+            <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Guest names per room</li>
+            <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Meal plan — ask them to read it back, don't accept vague confirmation</li>
+            <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Payment — confirm booking is prepaid and hotel has received VCC details</li>
+            <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Additional charges at check-in (city tax, resort fee, deposit) — note amount + currency</li>
+            <li><span class="check-icon"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>Hotel Confirmation Number (HCN) + name and department of person confirming</li>
+          </ul>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Closing the call</h4>
+          <div class="card" style="margin-bottom:10px"><h3 style="color:#065F46">If everything checks out</h3><p>Update system with HCN, name, department. Close warmly: "Thank you so much for your time and assistance, [Name]. We really appreciate your help. Have a lovely day. Goodbye!"</p></div>
+          <div class="card" style="margin-bottom:10px"><h3 style="color:#92400E">If there's a discrepancy</h3><p>Note it, update status, escalate. Do not try to resolve it yourself unless it's a trivial name spelling. "Thank you for letting us know. We will look into this from our end and follow up with you shortly."</p></div>
+          <div class="card"><h3 style="color:#991B1B">If hotel cannot find the booking</h3><p>Try once more with guest name + date spelled out. If still not found: "Alright, thank you for checking. We will look into this from our end and may call back." Then hang up and escalate immediately.</p></div>
+        </div>
+      </div>
+      <button class="mark-read-btn" id="mrk2" onclick="markRead(2)">Mark as read</button>
+    </div>
+
+    <div class="section" id="sec3">
+      <div class="sec-title">Booking status categories</div>
+      <p style="font-size:14px;color:#374151;margin-bottom:16px;line-height:1.6">Every booking must be updated with the correct status before you move to the next one. If it needs escalation — mark it, email the supplier, and move on.</p>
+      <div style="overflow-x:auto">
+      <table class="status-tbl">
+        <thead><tr><th style="width:36%">Status</th><th style="width:11%">Type</th><th>When to mark this</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Reconfirmed</td><td><span class="badge b-ok">Clear</span></td><td>All details match, HCN received</td></tr>
+          <tr><td style="font-weight:600">Reconfirmed — HCN not shared</td><td><span class="badge b-note">Note</span></td><td>Confirmed verbally, details match, but no HCN. Note name + department</td></tr>
+          <tr><td style="font-weight:600">CNP 1</td><td><span class="badge b-retry">Retry</span></td><td>First attempt — hotel did not pick up</td></tr>
+          <tr><td style="font-weight:600">CNP 2</td><td><span class="badge b-retry">Retry</span></td><td>Second attempt — hotel did not pick up</td></tr>
+          <tr><td style="font-weight:600">CNP 3</td><td><span class="badge b-warn">Escalate</span></td><td>Third attempt — hotel did not pick up. Escalate immediately</td></tr>
+          <tr><td style="font-weight:600">Booking not found</td><td><span class="badge b-esc">Escalate</span></td><td>Hotel cannot locate the booking at all. Escalate immediately</td></tr>
+          <tr><td style="font-weight:600">Booking found — incorrect room type</td><td><span class="badge b-esc">Escalate</span></td><td>Hotel has different room category. Do not accept. Escalate</td></tr>
+          <tr><td style="font-weight:600">Booking found — incorrect meal plan</td><td><span class="badge b-esc">Escalate</span></td><td>Hotel has different meal plan. Escalate</td></tr>
+          <tr><td style="font-weight:600">Booking found — incorrect no. of rooms</td><td><span class="badge b-esc">Escalate</span></td><td>Hotel has different number of rooms. Escalate</td></tr>
+          <tr><td style="font-weight:600">Booking found — incorrect no. of guests</td><td><span class="badge b-esc">Escalate</span></td><td>Hotel has different pax count. Escalate</td></tr>
+          <tr><td style="font-weight:600">Booking found — incorrect dates</td><td><span class="badge b-esc">Escalate</span></td><td>Even 1-day difference is an escalation</td></tr>
+          <tr><td style="font-weight:600">Booking found — payment pending / VCC not received</td><td><span class="badge b-esc">Escalate</span></td><td>Not marked prepaid or VCC not received. Critical — do not leave open</td></tr>
+          <tr><td style="font-weight:600">Booking found — extra charges at check-in</td><td><span class="badge b-warn">Note</span></td><td>City tax, resort fee, deposit. Note amount + currency. Escalate if unusually high</td></tr>
+          <tr><td style="font-weight:600">Booking cancelled in hotel's system</td><td><span class="badge b-esc">Escalate</span></td><td>Hotel shows booking as cancelled. Escalate immediately</td></tr>
+          <tr><td style="font-weight:600">Price discrepancy</td><td><span class="badge b-esc">Escalate</span></td><td>Different rate in hotel's system. Do not discuss pricing. Escalate</td></tr>
+          <tr><td style="font-weight:600">Wrong hotel booked — mapping issue</td><td><span class="badge b-esc">Escalate</span></td><td>Booking found in a completely different property. Escalate immediately</td></tr>
+          <tr><td style="font-weight:600">Duplicate booking found</td><td><span class="badge b-esc">Escalate</span></td><td>Same guest booked twice. Note both references. Escalate</td></tr>
+          <tr><td style="font-weight:600">Hotel permanently closed / under renovation</td><td><span class="badge b-esc">Escalate</span></td><td>Hotel non-operational. Urgent regardless of check-in date</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <button class="mark-read-btn" id="mrk3" onclick="markRead(3)" style="margin-top:16px">Mark as read</button>
+    </div>
+
+    <div class="section" id="sec4">
+      <div class="sec-title">Timezone guide</div>
+      <p style="font-size:14px;color:#374151;margin-bottom:16px;line-height:1.6">Call hotels during their working hours. Calling outside this window wastes your attempts and risks SLA breach.</p>
+      <div class="card">
+        <div class="tz-row"><div class="tz-region">Southeast Asia (Thailand, Vietnam, Indonesia, Malaysia, Singapore)</div><div class="tz-window">8 AM – 12 PM IST</div><span class="tz-badge">Day shift</span></div>
+        <div class="tz-row"><div class="tz-region">Middle East (UAE, Saudi Arabia, Oman)</div><div class="tz-window">8 AM – 2 PM IST</div><span class="tz-badge">Day shift</span></div>
+        <div class="tz-row"><div class="tz-region">Europe (UK, France, Germany, Italy)</div><div class="tz-window">11 AM – 5 PM IST</div><span class="tz-badge">Day shift</span></div>
+        <div class="tz-row"><div class="tz-region">USA / Canada / Caribbean</div><div class="tz-window">6 PM – 11 PM IST</div><span class="tz-badge" style="background:#FEF3C7;color:#92400E">Night shift</span></div>
+        <div class="tz-row"><div class="tz-region">Australia / New Zealand</div><div class="tz-window">5 AM – 10 AM IST</div><span class="tz-badge" style="background:#FEF3C7;color:#92400E">Night shift</span></div>
+      </div>
+      <button class="mark-read-btn" id="mrk4" onclick="markRead(4)">Mark as read</button>
+    </div>
+
+    <div class="section" id="sec5">
+      <div class="sec-title">Call recordings</div>
+      <p style="font-size:14px;color:#374151;margin-bottom:16px;line-height:1.6">Listen to real calls to understand what good and bad reconfirmations sound like.</p>
+      <div class="recordings-box">
+        <p>No recordings have been added yet.<br>Once available, call recordings will appear here for you to listen and learn from.</p>
+        <button class="upload-btn">+ Add recording</button>
+      </div>
+      <div class="rec-item" style="opacity:.4;pointer-events:none">
+        <div><div class="rec-label">Example — Successful reconfirmation</div><div class="rec-sub">Good call · HCN received · All details matched</div></div>
+        <button class="play-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 2l7 4-7 4V2z" fill="#fff"/></svg></button>
+      </div>
+      <div class="rec-item" style="opacity:.4;pointer-events:none">
+        <div><div class="rec-label">Example — Booking not found</div><div class="rec-sub">Escalation scenario · How to handle calmly</div></div>
+        <button class="play-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 2l7 4-7 4V2z" fill="#fff"/></svg></button>
+      </div>
+      <div class="rec-item" style="opacity:.4;pointer-events:none">
+        <div><div class="rec-label">Example — Payment not received</div><div class="rec-sub">Critical escalation · What to say and not say</div></div>
+        <button class="play-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 2l7 4-7 4V2z" fill="#fff"/></svg></button>
+      </div>
+      <button class="mark-read-btn" id="mrk5" onclick="markRead(5)" style="margin-top:16px">Mark as read</button>
+    </div>
+
+    <div class="section" id="sec6">
+      <div class="sec-title">Knowledge quiz</div>
+      <p style="font-size:14px;color:#374151;margin-bottom:20px;line-height:1.6">Answer all questions to complete your training. You can retry as many times as needed.</p>
+      <div id="quizArea"></div>
+      <div class="quiz-result" id="quizResult"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const read=[false,false,false,false,false,false,false];
+const questions=[
+  {q:"A booking has check-in today. What is the SLA to reconfirm or escalate?",opts:["0 – 4 hours","0 – 8 hours","0 – 24 hours","0 – 48 hours"],ans:0},
+  {q:"The hotel picks up but cannot find the booking after two tries. What do you do?",opts:["Keep calling until they find it","Try once more with guest name spelled out, then escalate if still not found","Mark as CNP 1 and retry tomorrow","Accept it and move to the next booking"],ans:1},
+  {q:"The hotel confirms the booking but says the meal plan is Room Only. Your booking says Breakfast Included. What do you do?",opts:["Accept Room Only since the booking is at least found","Ask the hotel to update it themselves","Note the discrepancy, update status, escalate immediately","Call back later to check if it's been fixed"],ans:2},
+  {q:"What does CNP stand for, and when do you escalate?",opts:["Cannot Proceed — after 1 attempt","Called, No Pickup — after 3 attempts","Confirmed, No Payment — immediately","Called, No Problem — never needs escalation"],ans:1},
+  {q:"The hotel says the booking is prepaid but they have not received the VCC details. What is this?",opts:["A minor note to log and check later","A critical escalation — do not leave this open","Something the guest should sort out at check-in","Normal — VCC usually arrives on the day of check-in"],ans:1},
+  {q:"Which region should you call first thing in the morning (IST)?",opts:["USA / Canada","Europe","Southeast Asia","Australia / NZ"],ans:2},
+  {q:"You confirm all details with the hotel but they cannot provide an HCN. What status do you mark?",opts:["Reconfirmed","Booking not found","Reconfirmed — HCN not shared","Escalate"],ans:2},
+];
+let answers=new Array(questions.length).fill(null);
+let submitted=false;
+
+function buildQuiz(){
+  const area=document.getElementById('quizArea');
+  area.innerHTML=questions.map((q,i)=>`<div class="quiz-q"><p>${i+1}. ${q.q}</p>${q.opts.map((o,j)=>`<button class="quiz-opt" id="q${i}o${j}" onclick="selectOpt(${i},${j})">${o}</button>`).join('')}</div>`).join('')+`<button class="upload-btn" onclick="submitQuiz()" style="margin-top:8px">Submit answers</button>`;
+}
+
+function selectOpt(qi,oi){
+  if(submitted)return;
+  answers[qi]=oi;
+  questions[qi].opts.forEach((_,j)=>{
+    const b=document.getElementById(`q${qi}o${j}`);
+    b.classList.remove('correct','wrong','reveal');
+    if(j===oi){b.style.borderColor='#1A4F8A';b.style.background='#EFF6FF';}
+    else{b.style.borderColor='';b.style.background='';}
+  });
+}
+
+function submitQuiz(){
+  if(answers.includes(null)){alert('Please answer all questions first.');return;}
+  submitted=true;
+  let score=0;
+  questions.forEach((q,i)=>{
+    q.opts.forEach((_,j)=>{
+      const b=document.getElementById(`q${i}o${j}`);
+      b.style.borderColor='';b.style.background='';
+      if(j===q.ans)b.classList.add('reveal');
+      if(answers[i]===j&&j!==q.ans)b.classList.add('wrong');
+      if(answers[i]===j&&j===q.ans){b.classList.add('correct');score++;}
+    });
+  });
+  const res=document.getElementById('quizResult');
+  const pct=Math.round(score/questions.length*100);
+  res.className='quiz-result show';
+  res.style.background=pct>=70?'#D1FAE5':'#FEE2E2';
+  res.innerHTML=`<div style="font-size:32px;font-weight:700;color:${pct>=70?'#065F46':'#991B1B'}">${score}/${questions.length}</div><div style="font-size:15px;color:${pct>=70?'#065F46':'#991B1B'};margin-top:8px;font-weight:500">${pct>=70?'Good work! You can now start reconfirming.':'Review the sections and try again.'}</div><button class="upload-btn" style="margin-top:16px;background:${pct>=70?'#059669':'#DC2626'}" onclick="retryQuiz()">Retry quiz</button>`;
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+  if(pct>=70)markRead(6);
+}
+
+function retryQuiz(){submitted=false;answers=new Array(questions.length).fill(null);buildQuiz();document.getElementById('quizResult').className='quiz-result';}
+
+function showSection(i){
+  document.querySelectorAll('.section').forEach((s,j)=>s.classList.toggle('active',j===i));
+  document.querySelectorAll('.nav-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function markRead(i){
+  read[i]=true;
+  const dot=document.getElementById('dot'+i);
+  if(dot)dot.classList.remove('no');
+  const btn=document.getElementById('mrk'+i);
+  if(btn){btn.textContent='Read';btn.classList.add('done');}
+  updateProgress();
+}
+
+function updateProgress(){
+  const done=read.filter(Boolean).length;
+  const pct=Math.round(done/read.length*100);
+  document.getElementById('progBar').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
